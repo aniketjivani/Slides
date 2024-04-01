@@ -249,14 +249,14 @@
 \renewcommand{\cite}[2][]{\textcolor{green}{\oldcite[#1]{#2}}}
             
 
-\title[Seminar]{Thoughts on Global Reliability Analysis}
+\title[Seminar]{News Round-up}
 % \title[Seminar]{An Adaptive Bayesian Method for Covariance Estimation in Multifidelity Estimators}
 
 % and Estimation of Predictive Uncertainties
 % The short title appears at the bottom of every slide, the full title is only on the title page
 
-\author[AJ]{Aniket Jivani}
-\institute[U-M]{Department of Mechanical Engineering, \\ University of Michigan}
+% \author[AJ]{Aniket Jivani}
+% \institute[U-M]{Department of Mechanical Engineering, \\ University of Michigan}
 
 \date{\today}
 
@@ -277,117 +277,42 @@
 
 
 
-\begin{frame}
- \frametitle{Overview} % Table of contents slide, comment this block out to remove it
- \tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
-\end{frame}
-
-\section{Background}
-\begin{frame}{Example: Steel Bar}
-
-\end{frame}
-
-\begin{frame}{Notation}
-
-The problem goes by many names: Fragility analysis, reliability analysis, rare event estimation (roughly the same objective with varying degrees of complexity)
-
-Simplest setting: Multiple random variables, locate a failure boundary or find the probability of failure
-
-(slightly more complicated settings): Time-dependence, design variables, robust optimization
-
-\end{frame}
-
-\begin{frame}{OUU Perspective}
-    If extreme response of objective function is of interest, then reliability based OUU formulation is \cite{giunta_perspectives_2004}:
+% \begin{frame}
+%  \frametitle{Overview} % Table of contents slide, comment this block out to remove it
+%  \tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
+% \end{frame}
 
 
-    $$\arg \min_d \operatorname{Prob}[g(d, \xi) > g^{\ast}]$$
+\begin{frame}{03/04/2024}
 
-
-    also see \url{https://kiwi.oden.utexas.edu/papers/Certifiable-Risk-based-engineering-design-optimization-Chaudhuri.pdf} for a deeper dive and nice figures on this subject.
-\end{frame}
-
-\begin{frame}{Semi-analytic methods: FORM}
-
-\end{frame}
-
-\begin{frame}{Sampling based approaches}
-
-
-\end{frame}
-
-\section{GP Surrogate For Finding Contours}
-\begin{frame}{Classical work: EFF by Bichon et al.}
-    
-\end{frame}
-
-\begin{frame}{Classical work: Subsets (Au and Beck)}
-
-\end{frame}
-
-\begin{frame}{Recent Extensions: Multifidelity methods}
 \begin{enumerate}
-    \item U-function GP with subset simulation
+    \item Thomas presented on Adaptive Covariance Estimation at \href{https://sites.lsa.umich.edu/mssiss/}{MSSISS 2024}
     
-    \item CAMERA: Cost-aware acquisition, joint parameter-fidelity spaces
+    \item Speaking of MSSISS\dots very few application oriented talks, mostly focused on simple use cases and theoretical developments. However, some interesting topics to chew on for future readings, e.g. Shushu Zhang's talk on expected shortfall regression! - \url{https://arxiv.org/pdf/2307.02695.pdf}
+    
+    (shortfall regression is of great interest in reliability analysis / risk averse design - see this work on \href{https://kiwi.oden.utexas.edu/papers/Certifiable-Risk-based-engineering-design-optimization-Chaudhuri.pdf}{RiBDO})
+
+    \item (last MSSISS mention) Fascinating keynote talk by \href{https://www.microsoft.com/en-us/research/people/davidmr/}{David Rothschild}
 \end{enumerate}
 
 \end{frame}
 
-\section{Level Sets / Optimal Control Perspective}
-\begin{frame}{Background: Flame propagation}
+\begin{frame}{03/04/2024}
 
-Osher and Sethian (1988)
-Crystal growth, flame propagation - Track motion of a front whose speed depends on local curvature
-
-Burning flame is an infinitely thin boundary, propagates into unburnt fluid (regions of success: (inner, burnt) and failure (outer, unburnt))
-
-Solutions (from toolbox): \url{https://www.cs.ubc.ca/~mitchell/ToolboxLS/Papers/myHSCC05.pdf}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.95\linewidth]{MitchellToolboxExample.png}
-    \caption{Time evolving solution of front}
-    \label{f: mtoolboxpde}
-\end{figure}
-
-\end{frame}
-
-
-
-
-\begin{frame}{HJB PDEs}
+\begin{enumerate}
+    \item Nice ArXiV: \emph{The Elements of Differentiable Programming} \url{https://arxiv.org/abs/2403.14606}
     
-\end{frame}
+    \item SciFM is underway, please stop by! \url{https://micde.umich.edu/news-events/annual-symposia/2024-symposium/}
+    
+    \item Big solar storm last week! \href{https://www.nesdis.noaa.gov/news/noaa-satellites-detect-severe-solar-storm}{NOAA}
 
-\begin{frame}{Rewriting subset simulations as a flow map problem}
+\end{enumerate}
 
-\end{frame}
-
-\section{Neural ODEs}
-\begin{frame}{TL;DR}
 
 \end{frame}
 
-\begin{frame}{Active Learning Component}
 
-How do we incorporate uncertainties and improve estimation of the surrogate model?
-
-\end{frame}
-
-\begin{frame}{Pseudocode}
-
-\end{frame}
-
-\begin{frame}{Results}
-
-\end{frame}
-
-\begin{frame}{Next Steps}
-
-\end{frame}
-
-\section{Follow up}
+% \section{Follow up}
 
 \begin{frame}[allowframebreaks]
     \frametitle{References}
@@ -397,7 +322,7 @@ How do we incorporate uncertainties and improve estimation of the surrogate mode
     \bibliography{myRef}
 \end{frame}
 
-\section{Backup}
+% \section{Backup}
 \begin{frame}{}
 \begin{center}
     \Large{Thank you!}
@@ -405,10 +330,4 @@ How do we incorporate uncertainties and improve estimation of the surrogate mode
         
 \end{frame}
 
-% Nice 15 minute read on the subject and the philosophy: \url{https://www.stochasticlifestyle.com/how-to-train-interpretable-neural-networks-that-accurately-extrapolate-from-small-data/}
-
-% \end{frame}
-% \begin{frame}{Backup 5: Implementation}
-% Some other day.
-% \end{frame}
 \end{document}
