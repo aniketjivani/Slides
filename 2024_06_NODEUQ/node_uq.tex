@@ -249,7 +249,7 @@
 \renewcommand{\cite}[2][]{\textcolor{green}{\oldcite[#1]{#2}}}
             
 
-\title[Seminar]{Papers: ResNets, NODEs, Graph NODEs}
+\title[Seminar]{Probabilistic Inference in NODEs}
 % \title[Seminar]{An Adaptive Bayesian Method for Covariance Estimation in Multifidelity Estimators}
 
 % and Estimation of Predictive Uncertainties
@@ -278,72 +278,38 @@
 
 \begin{frame}{Overview}
 
-Sander et al. \url{https://openreview.net/pdf?id=1tCuRbPts3J}
-
-Poli et al. \url{https://arxiv.org/pdf/1911.07532.pdf}
-
-\begin{enumerate}
-    \item Smooth interpolation of ResNets, errors in gradients
-    
-    \item Adjoint based training of ResNets
-    
-    \item GNN-based parametrizations for ODEs! (or, rediscovering \emph{some} connections between neural operators and NODEs)
-\end{enumerate}
 
 \end{frame}
 
-
-
-\begin{frame}{Paper 2 - Motivations}
-
-Original motivation: Can we leverage ideas from neural operators to perform \textcolor{red}{image-to-image mapping} in continuous time setting? (given lack of improvements in evolving latent-space dynamics)
-
-\textcolor{red}{\textbf{Tired:}} CNN (need for dense fully connected layers), CNN-encoder + NODE in latent space (terrible performance in reconstruction, lack of interpretability)
-
-\textcolor{violet}{\textbf{Wired:}} Neural Operators (convolutions, but fancier and actually work well for PDE-based problems)
-
-\pause
-
-While Neural operators have adopted the Fourier space as \emph{de facto standard}, their original motivation comes from GNNs, so this work is very relevant - Poli et al. \url{https://arxiv.org/pdf/1911.07532.pdf}
-
-% (the take of the Neural operator papers is - continuity is an artifical algorithmic depth parameter for NODE type approaches, while our method considers continuity of input and output data)
-
-\end{frame}
-
-\begin{frame}{Big takeway}
-    \textcolor{red}{Are Neural ODEs the true deep limit of ResNets? Not quite!}
-    Short explanation:
-    
+\begin{frame}{Review: Combining GP and NODEs}
     
 \end{frame}
 
-\begin{frame}{Why does this matter?}
-    The reason is the need to separate the notion of \textcolor{blue}{the depth variable} in special cases of $f$ and the physical \textcolor{magenta}{time variable} where we are interested in the solution.
-
-    This leads to \emph{autoregressive GDE} type formulation:
+\begin{frame}{Where existing works fall short}
+    
 \end{frame}
 
-
-\begin{frame}{Autoregressive GDEs}
-
+\begin{frame}{Scaling up GPs}
+    Deep Kernel Learning?
 \end{frame}
 
-\begin{frame}{Connection to stacked ODEs}
+\begin{frame}{Producing (somewhat) calibrated uncertainties}
 
 \end{frame}
 
-\begin{frame}
-\textbf{Unclear:} When is it beneficial to pursue learning with continuous depth variables i.e. stacking of `ODESolve'? What would be the challenges in training this compared to discrete depth settings?
+\begin{frame}{Probabilistic Numerics?}
+    Where does the uncertainty arise from?
+    
+\end{frame}
 
+\begin{frame}{SPDE based approaches}
+    
+\end{frame}
 
-\textcolor{red}{How would this translate to making predictions over longer time horizons for different initial conditions? To test!}
+\begin{frame}{Example Problem}
+
 
 \end{frame}
-% \begin{frame}
-%  \frametitle{Overview} % Table of contents slide, comment this block out to remove it
-%  \tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
-% \end{frame}
-
 
 
 % \section{Backup}
