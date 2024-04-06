@@ -278,55 +278,85 @@
 
 \begin{frame}{Overview}
 
-Sander et al. \url{https://openreview.net/pdf?id=1tCuRbPts3J}
+% Sander et al. \url{https://openreview.net/pdf?id=1tCuRbPts3J}
 
-Poli et al. \url{https://arxiv.org/pdf/1911.07532.pdf}
+% Poli et al. \url{https://arxiv.org/pdf/1911.07532.pdf}
+
+Brief descriptions - 
 
 \begin{enumerate}
-    \item Smooth interpolation of ResNets, errors in gradients
+    \item Initial connection between Deep Neural Networks and different families of PDEs \href{https://arxiv.org/abs/1804.04272}{Ruthotto and Haber 2018}
     
-    \item Adjoint based training of ResNets
+    \item Reframing neural operators as implicit layers \href{https://arxiv.org/abs/2203.08205}{You et al., 2022}
     
-    \item GNN-based parametrizations for ODEs! (or, rediscovering \emph{some} connections between neural operators and NODEs)
+    \item Neural ODEs as the true deep limit of ResNets \href{https://arxiv.org/abs/2002.08071}{Massaroli et al., 2021}
 \end{enumerate}
 
 \end{frame}
 
 
+\section{Part II}
+\begin{frame}{Neural Operators TL;DR}
 
-\begin{frame}{Paper 2 - Motivations}
 
-Original motivation: Can we leverage ideas from neural operators to perform \textcolor{red}{image-to-image mapping} in continuous time setting? (given lack of improvements in evolving latent-space dynamics)
-
-\textcolor{red}{\textbf{Tired:}} CNN (need for dense fully connected layers), CNN-encoder + NODE in latent space (terrible performance in reconstruction, lack of interpretability)
-
-\textcolor{violet}{\textbf{Wired:}} Neural Operators (convolutions, but fancier and actually work well for PDE-based problems)
-
-\pause
-
-While Neural operators have adopted the Fourier space as \emph{de facto standard}, their original motivation comes from GNNs, so this work is very relevant - Poli et al. \url{https://arxiv.org/pdf/1911.07532.pdf}
-
-% (the take of the Neural operator papers is - continuity is an artifical algorithmic depth parameter for NODE type approaches, while our method considers continuity of input and output data)
 
 \end{frame}
 
-\begin{frame}{Big takeway}
-    \textcolor{red}{Are Neural ODEs the true deep limit of ResNets? Not quite!}
-    Short explanation:
+
+\begin{frame}{Timestepping with Neural Operators}
+
+
+\end{frame}
+
+\begin{frame}{Implicit Layers}
+
+
+\end{frame}
+
+
+\begin{frame}{Fixed Point Iterations}
+
+
+
+\end{frame}
+
+
+\begin{frame}{}
+
+
+% \begin{frame}{Paper 2 - Motivations}
+
+% Original motivation: Can we leverage ideas from neural operators to perform \textcolor{red}{image-to-image mapping} in continuous time setting? (given lack of improvements in evolving latent-space dynamics)
+
+% \textcolor{red}{\textbf{Tired:}} CNN (need for dense fully connected layers), CNN-encoder + NODE in latent space (terrible performance in reconstruction, lack of interpretability)
+
+% \textcolor{violet}{\textbf{Wired:}} Neural Operators (convolutions, but fancier and actually work well for PDE-based problems)
+
+% \pause
+
+% While Neural operators have adopted the Fourier space as \emph{de facto standard}, their original motivation comes from GNNs, so this work is very relevant - Poli et al. \url{https://arxiv.org/pdf/1911.07532.pdf}
+
+% % (the take of the Neural operator papers is - continuity is an artifical algorithmic depth parameter for NODE type approaches, while our method considers continuity of input and output data)
+
+% \end{frame}
+
+% \begin{frame}{Big takeway}
+%     \textcolor{red}{Are Neural ODEs the true deep limit of ResNets? Not quite!}
+%     Short explanation:
     
     
-\end{frame}
+% \end{frame}
 
-\begin{frame}{Why does this matter?}
-    The reason is the need to separate the notion of \textcolor{blue}{the depth variable} in special cases of $f$ and the physical \textcolor{magenta}{time variable} where we are interested in the solution.
+% \begin{frame}{Why does this matter?}
+%     The reason is the need to separate the notion of \textcolor{blue}{the depth variable} in special cases of $f$ and the physical \textcolor{magenta}{time variable} where we are interested in the solution.
 
-    This leads to \emph{autoregressive GDE} type formulation:
-\end{frame}
+%     This leads to \emph{autoregressive GDE} type formulation:
+% \end{frame}
 
 
-\begin{frame}{Autoregressive GDEs}
+% \begin{frame}{Autoregressive GDEs}
 
-\end{frame}
+% \end{frame}
 
 \begin{frame}{Connection to stacked ODEs}
 
