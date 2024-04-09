@@ -241,15 +241,15 @@
 
 % fix inconsistent colors in cite parenthesis (where the closing parenthesis were black instead of the rest of the citecolor!)
 % https://github.com/josephwright/beamer/issues/671
-\let\oldcite=\cite
-\let\oldcitet=\citet
-\let\oldcitep=\citep 
-\renewcommand{\citet}[2][]{\textcolor{green}{\oldcitet[#1]{#2}}}
-\renewcommand{\citep}[2][]{\textcolor{green}{\oldcitep[#1]{#2}}}
-\renewcommand{\cite}[2][]{\textcolor{green}{\oldcite[#1]{#2}}}
+% \let\oldcite=\cite
+% \let\oldcitet=\citet
+% \let\oldcitep=\citep 
+% \renewcommand{\citet}[2][]{\textcolor{green}{\oldcitet[#1]{#2}}}
+% \renewcommand{\citep}[2][]{\textcolor{green}{\oldcitep[#1]{#2}}}
+% \renewcommand{\cite}[2][]{\textcolor{green}{\oldcite[#1]{#2}}}
             
 
-\title[Seminar]{Papers: ResNets, NODEs, Graph NODEs}
+\title[Seminar]{Papers: ResNets, CNNs, and NODEs}
 % \title[Seminar]{An Adaptive Bayesian Method for Covariance Estimation in Multifidelity Estimators}
 
 % and Estimation of Predictive Uncertainties
@@ -260,13 +260,13 @@
 
 \date{\today}
 
-\AtBeginSection[]
-{
- \begin{frame}<beamer>
- \frametitle{Plan}
- \tableofcontents[currentsection]
- \end{frame}
-}
+% \AtBeginSection[]
+% {
+%  \begin{frame}<beamer>
+%  \frametitle{Plan}
+%  \tableofcontents[currentsection]
+%  \end{frame}
+% }
 
 
 \begin{document}
@@ -276,11 +276,17 @@
 \end{frame}
 
 
+% \begin{frame}
+%     \frametitle{Overview} % Table of contents slide, comment this block out to remove it
+%     \tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
+% \end{frame}
+
 \begin{frame}{Overview}
 
 % Sander et al. \url{https://openreview.net/pdf?id=1tCuRbPts3J}
 
 % Poli et al. \url{https://arxiv.org/pdf/1911.07532.pdf}
+\textbf{Motivation for self:} Think a little more about selecting suitable neural network architectures for scientific data in the small data setting.
 
 Brief descriptions - 
 
@@ -293,6 +299,129 @@ Brief descriptions -
 \end{enumerate}
 
 \end{frame}
+
+\section{Part I}
+\begin{frame}{PDEs meet Image Processing}
+    
+    (For many decades, in different applications)
+
+    % \pause
+
+    \emph{Optical Flows...}(estimate motion field from time-varying intensities)
+        $$\frac{\partial I}{\partial x}V_x + \frac{\partial I}{\partial y}{V_y} + \frac{\partial{I}}{\partial{t}} = 0$$
+    % \pause
+
+    \emph{Anisotropic diffusion...}(\cite{perona_scale-space_1990}) - \texttt{imdiffusefilt} in MATLAB
+    $$\frac{\partial I}{\partial t} = \operatorname{div}(c(x, y, t) \nabla (I))$$
+
+    Gradually moved on to \textcolor{red}{`less inductive bias, more data'} approach for all kinds of problems!
+\end{frame}
+
+
+
+\begin{frame}{Parametrizing Convolutional Operators}
+    Write ResNet as a forward Euler discretization with a fixed step size:
+
+    $$Y_{j+1} = Y_j + F(\theta^j, Y_j) \implies \partial_t\mathbf{Y}(\boldsymbol{\theta},t)&=\mathbf{F}(\boldsymbol{\theta}(t),\mathbf{Y}(t)),\mathrm{~for~}t\in(0,T]$$
+
+    $$\mathbf{Y}(\boldsymbol{\theta},0)&=\mathbf{Y}_0$$
+
+
+    $F$ is typically composed of: $\mathbf{K}_2(\theta^{(3)})\sigma\left(\mathcal{N}(\mathbf{K}_1(\boldsymbol{\theta}^{(1)})\mathbf{Y},\boldsymbol{\theta}^{(2)})\right)$ where $\mathcal{N}$ is normalization layer and $\mathbf{K}$ are parametrized by stencils $\theta$.
+\end{frame}
+
+\begin{frame}{Examples of stencils}
+
+A familiar one is for the Laplacian in the heat equation: $\theta = [1, -2, 1]/h^2$. For first order centered differences, use: $[-1, 0, 1]/2h$ and so on.
+
+Weighted $\theta$ lead us to:
+
+$$\mathbf{K}_1(\theta)=\beta_1(\theta)+\beta_2(\theta)\partial_x+\beta_3(\theta)\partial_x^2$$
+
+Multiply by different sizes and values of stencils to generate other differential operators.
+
+The above implies learned weights depend strongly on  image resolution! i.e. $h$.
+
+\textcolor{red}{Exploit:} Multiscale training strategies! \cite{greydanus_hamiltonian_2019}
+
+start from coarse mesh operator $K_H$, train network and solve for fine operator $K_h$ from $K_H = R K_h P$ - leads to training efficiencies.
+    
+\end{frame}
+
+
+\begin{frame}{Similar Ideas in Neural Operators}
+    Other works, too, are converging on these ideas... e.g. \cite{liu-schiaffini_neural_2024} \url{https://arxiv.org/pdf/2402.16845.pdf}
+
+    This proposes a discretization invariant version of the differential layer.
+
+\end{frame}
+
+
+\begin{frame}{Hyperbolic systems}
+    (show parabolic CNNs from paper)
+
+    e.g. wave equation, Burgers equation,
+    generalized Burgers:
+
+    $$\frac{\partial u}{\partial t} + c(u) \frac{\partial{u}}{\partial{x}} = \nu \frac{\partial ^2 u}{\partial x^2}$$
+
+    (typically successful regularizations involve adding some amount of dissipation on the RHS for physically acceptable solutions)
+
+    Parabolic vs hyperbolic nature dictated by strengths of respective terms. For linear transport ($\partial_t c + a \partial_x c = 0$ - the points away from the discontinuity are unchanged till the wave reaches that part of the domain.)
+
+    \textcolor{red}{Finite vs infinite speed of propagation of information}
+    
+\end{frame}
+
+\begin{frame}{Hamiltonian mechanics POV}
+    Total energy of system i.e. H(q(t), p(t)) is conserved. $q$, $p$ - position, momentum coordinates.
+
+    Hamiltonian CNNs: In paper notation , introduce an auxiliary variable $Z$ (\textcolor{red}{partitioning channels of original features})
+
+    $\partial_t\mathbf{Y}(t)=\mathbf{F}_\text{sym}(\boldsymbol{\theta}^{(1)}(t),\mathbf{Z}(t)),\quad\mathbf{Y}(0)=\mathbf{Y}_0$
+
+    $\partial_t\mathbf{Z}(t)=-\mathbf{F}_\text{sym}(\boldsymbol{\theta}^{(2)}(t),\mathbf{Y}(t)),\quad\mathbf{Z}(0)=\mathbf{Z}_0.$
+
+    and integrate:
+
+    $\mathbf{Y}_{j+1}=\mathbf{Y}_j+\delta_t\mathbf{F}_{\mathrm{sym}}(\boldsymbol{\theta}^{(1)}(t_j),\mathbf{Z}_j) \,\mathbf{Z}_{j+1}=\mathbf{Z}_j-\delta_t\mathbf{F}_{\mathrm{sym}}(\boldsymbol{\theta}^{(2)}(t_j),\mathbf{Y}_{j+1})$
+
+
+    Look for Hamiltonian $ +  X$ (ROM, NODE, etc.): \cite{greydanus_hamiltonian_2019,sharma_hamiltonian_2022,huh_time-reversal_2020}
+
+
+    \textcolor{magenta}{Results:ResNets with 3x fewer parameters for comparable accuracy.}
+\end{frame}
+
+
+% \begin{frame}{What does this mean for ROMs?}
+
+%     \item In the happy case that the underlying equations are known and can be simplified, we can rely on data-driven methods to find the speed and obtain a very simple reduced-order model / architecture.
+    
+
+%     for example, \cite{issan_predicting_2023}
+        
+%     $$\frac{\partial \tilde{u}}{\partial t} + \left(\tilde{u} + \frac{dc}{dt}\right) \frac{\partial \tilde{u}}{\partial \tilde{x}} = 0$$
+
+%     Moving coordinates: $x \rightarrow x + c(t)$:
+
+%     % $$\frac{\partial \tilde{u}}{\partial t} +  \frac{\partial}{\partial \tilde{x}}\left[g(\tilde{u})\right] = 0$$ where $g(\tilde{u}) = 1/2 (\tilde{u})^2  + (dc/dt) \tilde{u}$
+
+%     \textcolor{red}{linear-quadratic ROM, find speed by cross-correlation}
+% \end{frame}
+
+% \begin{frame}{What about White Light Images?}
+%     \begin{enumerate}
+%         \item We can specify the intensity as a line-of-sight integral with very reasonable assumptions:
+        
+
+%     \end{enumerate}
+    
+% \end{frame}
+% \begin{frame}{title}
+    
+% \end{frame}
+
 
 
 \section{Part II}
@@ -319,9 +448,6 @@ Brief descriptions -
 
 
 \end{frame}
-
-
-\begin{frame}{}
 
 
 % \begin{frame}{Paper 2 - Motivations}
@@ -358,6 +484,12 @@ Brief descriptions -
 
 % \end{frame}
 
+\section{Part III}
+\begin{frame}{Depth Invariance}
+    
+\end{frame}
+
+
 \begin{frame}{Connection to stacked ODEs}
 
 \end{frame}
@@ -369,12 +501,31 @@ Brief descriptions -
 \textcolor{red}{How would this translate to making predictions over longer time horizons for different initial conditions? To test!}
 
 \end{frame}
+
+\begin{frame}{Key takeaways:}
+    \begin{enumerate}
+        \item There are interesting connections between PDE theory and treating networks as a continuous process over the depth parameter that can lead potentially to better architectures.
+        
+        \item Turbulence would have been a solved problem by now if only more people used convolutions ;) (and had many many GPUs)
+        
+        \item Plenty of work remaining in bridging the gap when there are no obvious ways to reduce or simplify models further, or multiple variables are coupled together.
+        
+        \item Reversibility! - \href{{https://math.stackexchange.com/questions/628720/why-heat-equation-is-not-time-reversible-time-arrow-in-mathematics}}{Heat Eqn vs Wave Eqn}, \href{https://doi.org/10.1016/S0167-2789(97)00199-1}{Lamb and Roberts} - arguments lead to TRS-NODEs \url{https://arxiv.org/abs/2007.11362}
+    \end{enumerate}
+
+\end{frame}
 % \begin{frame}
 %  \frametitle{Overview} % Table of contents slide, comment this block out to remove it
 %  \tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
 % \end{frame}
 
+\begin{frame}[allowframebreaks]
+    \frametitle{References}
+    \bibliographystyle{chicago}
 
+    % \bibliographystyle{IEEEtran}
+    \bibliography{myRef}
+\end{frame}
 
 % \section{Backup}
 \begin{frame}{}
