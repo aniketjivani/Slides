@@ -285,15 +285,55 @@ A presentation in multiple parts that:
 \begin{enumerate}
     \item Adds to our toolbox of acquisition functions: UCB, PI, EI (Expected Improvement) with another acronym
     
-    \item Sequential sampling policies with KG
+    \item (potentially some theory) Sequential sampling policies with KG
     
     \item Applications (covariance emulation)
 \end{enumerate}
 
 \end{frame}
 
+\begin{frame}{Some references}
+    \begin{enumerate}
+        \item A Tutorial on Bayesian Optimization \cite{frazier_tutorial_2018}
+        
+        \item Maximizing Acquisition Functions for BO \cite{}
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Bayesian Optimization}
+    \begin{enumerate}
+        \item Derivative-free optimization method for black box functions
+        $d^\ast \in \arg \max_d f(d, \xi)$ or (OUU variant): $d^\ast \in \arg \max_d \mathbb{E}(f(d, \xi))$
+        
+        \item Two ingredients: 
+        \textcolor{red}{Probabilistic surrogate model} (99 \% of times this is a GP):
+
+        
+
+        \item Maximize an \textcolor{blue}{acquisition function} quantifying the utility of a given design point
+    \end{enumerate}
+
+\end{frame}
+
+\begin{frame}{A Vast and Unending Field}
+Impossible to enumerate everything that goes on here. A brief taste: 
+\begin{enumerate}
+    \item Plenty of exotic variants and new findings 
+    
+
+
+    \item Plenty of software (some good, some beta, not always easily usable on the cutting edge)
+
+
+
+    \item To achieve fame and success - find your own acquisition function, write software to do domain-agnostic BO, tailor acquisition to very hard problems
+\end{enumerate}
+    
+\end{frame}
 
 \begin{frame}{KG Definition}
+Why KG right now? We are interested in this acquisition for (potentially) selecting model subsets for pilot sampling / multifidelity estimation and thought this a good opportunity to explore the formulation.
+
 
 \end{frame}
 
@@ -585,13 +625,13 @@ A presentation in multiple parts that:
     \bibliography{myRef}
 \end{frame}
 
-% \section{Backup}
-% \begin{frame}{}
-% \begin{center}
-%     \Large{Thank you!}
-% \end{center}
+\section{Backup}
+\begin{frame}{}
+\begin{center}
+    \Large{Thank you!}
+\end{center}
         
-% \end{frame}
+\end{frame}
 
 % Nice 15 minute read on the subject and the philosophy: \url{https://www.stochasticlifestyle.com/how-to-train-interpretable-neural-networks-that-accurately-extrapolate-from-small-data/}
 
