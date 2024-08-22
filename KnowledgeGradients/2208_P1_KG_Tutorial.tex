@@ -244,9 +244,9 @@
 \let\oldcite=\cite
 \let\oldcitet=\citet
 \let\oldcitep=\citep 
-\renewcommand{\citet}[2][]{\textcolor{green}{\oldcitet[#1]{#2}}}
-\renewcommand{\citep}[2][]{\textcolor{green}{\oldcitep[#1]{#2}}}
-\renewcommand{\cite}[2][]{\textcolor{green}{\oldcite[#1]{#2}}}
+\renewcommand{\citet}[2][]{\textcolor{blue}{\oldcitet[#1]{#2}}}
+\renewcommand{\citep}[2][]{\textcolor{blue}{\oldcitep[#1]{#2}}}
+\renewcommand{\cite}[2][]{\textcolor{blue}{\oldcite[#1]{#2}}}
             
 
 \title[Seminar]{Part 1 - A Useless Tutorial for using KG}
@@ -278,6 +278,8 @@
 
 % \begin{frame}{Notes}
 % \end{frame}
+
+\section{Overview}
 \begin{frame}{Overview}
 
 A presentation in multiple parts that:
@@ -296,7 +298,9 @@ A presentation in multiple parts that:
     \begin{enumerate}
         \item A Tutorial on Bayesian Optimization \cite{frazier_tutorial_2018}
         
-        \item Maximizing Acquisition Functions for BO \cite{}
+        \item Maximizing Acquisition Functions for BO \cite{wilson_maximizing_2018}
+        
+        \item BO for noisy experiments \cite{letham_constrained_2019}
     \end{enumerate}
 \end{frame}
 
@@ -310,27 +314,28 @@ A presentation in multiple parts that:
 
         
 
-        \item Maximize an \textcolor{blue}{acquisition function} quantifying the utility of a given design point
+        \item Maximize an \textcolor{blue}{acquisition function} quantifying the utility of a given design point:
     \end{enumerate}
 
 \end{frame}
 
 \begin{frame}{A Vast and Unending Field}
-Impossible to enumerate everything that goes on here. A brief taste: 
+Impossible to enumerate everything that goes on here, some examples:
 \begin{enumerate}
-    \item Plenty of exotic variants and new findings 
+    \item Plenty of exotic variants e.g. \cite{eriksson_scalable_2020,miller_targeted_2024,astudillo_bayesian_2019,brochu_portfolio_2011} and new findings e.g. \cite{hvarfner_vanilla_2024}
     
 
 
-    \item Plenty of software (some good, some beta, not always easily usable on the cutting edge)
+    \item Plenty of software (some good, some beta)
 
+    e.g. GPyTorch (\url{https://github.com/cornellius-gp/gpytorch}), BoTorch (\url{https://botorch.org}), vanilla BO (\url{https://github.com/bayesian-optimization/BayesianOptimization})
 
-
-    \item To achieve fame and success - find your own acquisition function, write software to do domain-agnostic BO, tailor acquisition to very hard problems
+    \item To achieve fame and success - find your own acquisition function, write software to do domain-agnostic BO, tailor acquisition to very hard problems!
 \end{enumerate}
     
 \end{frame}
 
+\section{Setup}
 \begin{frame}{KG Definition}
 Why KG right now? We are interested in this acquisition for (potentially) selecting model subsets for pilot sampling / multifidelity estimation and thought this a good opportunity to explore the formulation.
 
@@ -625,7 +630,7 @@ Why KG right now? We are interested in this acquisition for (potentially) select
     \bibliography{myRef}
 \end{frame}
 
-\section{Backup}
+% \section{Backup}
 \begin{frame}{}
 \begin{center}
     \Large{Thank you!}
