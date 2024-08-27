@@ -306,7 +306,7 @@ A presentation in multiple parts that:
 
 \begin{frame}{Bayesian Optimization}
     \begin{enumerate}
-        \item Derivative-free optimization method for black box functions
+        \item Derivative-free optimization method for black box functions, almost always selecting one measurement at a time.
         $d^\ast \in \arg \max_d f(d, \xi)$ or (OUU variant): $d^\ast \in \arg \max_d \mathbb{E}(f(d, \xi))$
         
         \item Two ingredients: 
@@ -319,22 +319,47 @@ A presentation in multiple parts that:
 
 \end{frame}
 
+\begin{frame}{What does $f$ usually look like?}
+    \begin{enumerate}
+        \item $d < 20$ (this if from a 2016 ;) talk on \href{https://web.archive.org/web/20210726193918/http://mcqmc2016.stanford.edu/Frazier-Peter.pdf}{BO in the Tech Sector - Frazier})
+        
+        \item Feasible set is simple e.g. box constraints
+        
+        \item no gradient information from evaluations (note that gradients could be used in optimization of the acquisition, see \cite{wilson_maximizing_2018} for an overview)
+        
+        \item Expensive / Time consuming to evaluate
+        
+        \item Noisy measurements!
+    \end{enumerate}
+\end{frame}
+
+
 \begin{frame}{A Vast and Unending Field}
 Impossible to enumerate everything that goes on here, some examples:
 \begin{enumerate}
-    \item Plenty of exotic variants e.g. \cite{eriksson_scalable_2020,miller_targeted_2024,astudillo_bayesian_2019,brochu_portfolio_2011} and new findings e.g. \cite{hvarfner_vanilla_2024}
-    
+    \item Plenty of exotic variants e.g. high-dim BO, composite BO, hedging methods etc.  \cite{eriksson_scalable_2020,miller_targeted_2024,astudillo_bayesian_2019,brochu_portfolio_2011} and surprising new findings e.g. \cite{hvarfner_vanilla_2024} 
 
+    \item Plenty of software (some good, some beta) e.g. BoTorch (\url{https://botorch.org}), vanilla BO (\url{https://github.com/bayesian-optimization/BayesianOptimization}), CornellMOE (\url{https://github.com/wujian16/Cornell-MOE})
 
-    \item Plenty of software (some good, some beta)
-
-    e.g. GPyTorch (\url{https://github.com/cornellius-gp/gpytorch}), BoTorch (\url{https://botorch.org}), vanilla BO (\url{https://github.com/bayesian-optimization/BayesianOptimization})
-
-    \item To achieve fame and success - find your own acquisition function, write software to do domain-agnostic BO, tailor acquisition to very hard problems!
+    \item To achieve \textcolor{blue}{fame and success} - find your own acquisition function, \href{https://techcrunch.com/2020/10/29/intel-acquires-sigopt-a-specialist-in-modeling-optimization-to-boost-its-ai-business/}{write software to do domain-agnostic BO}, tailor acquisition to very hard problems!
 \end{enumerate}
     
 \end{frame}
 
+\begin{frame}{Common Acquisition Functions}
+    Zoo of acquisition functions!
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{acquisition_function_zoo.jpg}
+        \caption{}
+        \label{fig: acq_zoo}
+    \end{figure}
+    
+\end{frame}
+
+\begin{frame}{Digression - regret optimal?}
+    
+\end{frame}
 \section{Setup}
 \begin{frame}{KG Definition}
 Why KG right now? We are interested in this acquisition for (potentially) selecting model subsets for pilot sampling / multifidelity estimation and thought this a good opportunity to explore the formulation.
@@ -345,6 +370,13 @@ Why KG right now? We are interested in this acquisition for (potentially) select
 \begin{frame}{KG Definition}
     
 \end{frame}
+
+\begin{frame}{Other KG features?}
+    \begin{enumerate}
+        \item No tuning parameters in the acquisition?
+    \end{enumerate}
+\end{frame}
+
 
 \begin{frame}{Acquisition and Updates}
     
@@ -359,9 +391,20 @@ Why KG right now? We are interested in this acquisition for (potentially) select
     
 \end{frame}
 
-\begin{frame}{Preview for Part II}
+\begin{frame}{Takeaways}
+\begin{enumerate}
+    \item Your general setup for Bayesian Optimization will require you to build a GP, and select a myopic acquisition policy - there are many options for doing so.
+    
+    \item We looked at two popular policies in noise-free and noisy settings, the empirical observation is that KG outperforms EI in the latter case.
+    
+    \item We haven't yet made any comments about sub-optimality, and special cases (i.e. fixed number of alternatives, stopping at the $k$ th measurement etc.)
+\end{enumerate}
 
 \end{frame}
+
+% \begin{frame}{Preview for Part II}
+
+% \end{frame}
 
 % \begin{frame}
 %  \frametitle{Overview} % Table of contents slide, comment this block out to remove it
