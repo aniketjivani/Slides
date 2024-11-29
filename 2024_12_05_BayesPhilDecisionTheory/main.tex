@@ -1,0 +1,231 @@
+\documentclass[usenames,dvipsnames]{beamer}
+
+\mode<presentation> {
+
+\usetheme{Singapore}
+\usecolortheme{whale}
+
+
+%\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+%\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+
+\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+}
+
+% Create sidebar with section titles in Singapore theme
+\setbeamertemplate{section in toc}[sections numbered]
+\setbeamertemplate{sections/subsections in toc}[circle]
+
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage{natbib}
+\usepackage{amsmath, amssymb, graphicx, url}
+\usepackage[ruled]{algorithm2e}
+\usepackage{commath}
+\usefonttheme[onlymath]{serif}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{centernot}
+\usepackage{comment}
+%\usepackage[a4paper, margin=0.8in]{geometry}
+\usepackage{parskip}
+\usepackage{graphicx}
+
+\usepackage{natbib}
+
+\usepackage{tikz}
+\usepackage{tikzlings}
+
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{mathtools}
+\usepackage{bm,upgreek}
+\usepackage{subcaption}
+\usepackage{textpos}
+\usepackage{media9}
+
+\def\E{\mathbf{E}}
+\def\PP{\mathbf{P}}
+\def\Reals{\mathbb{R}}
+\def\Naturals{\mathbb{N}}
+\def\argmin{\operatornamewithlimits{arg\,min}}
+\def\deq{:=}
+\def\wh#1{\widehat{#1}}
+\def\bd#1{\mathbf{#1}}
+\def\bx{\bd{x}}
+\def\by{\bd{y}}
+\def\bZ{\bd{Z}}
+\def\bB{\bd{B}}
+\def\bV{\bd{V}}
+\def\tO{{\tilde{\cO}}}
+\def\tOm{\tilde{\Omega}}
+\def\barw{\overline{w}}
+\def\d{{\mathrm d}}
+\def\ave#1{\langle #1 \rangle}
+\def\Ave#1{\left\langle #1 \right\rangle}
+\def\eps{\varepsilon}
+\def\tr{\mathrm{Tr}}
+
+
+\def\HS{\mathbb{H}}
+\def\reals{\mathbb{R}}
+\def\ths{\theta^*}
+\def\thh{\hat{\theta}}
+\def\lbr{\left[}
+\def\rbr{\right]}
+\def\lc{\left(}
+\def\rc{\right)}
+
+\def\ddefloop#1{\ifx\ddefloop#1\else\ddef{#1}\expandafter\ddefloop\fi}
+% \cA, \cB, ...
+\def\ddef#1{\expandafter\def\csname c#1\endcsname{\ensuremath{\mathcal{#1}}}}
+\ddefloop ABCDEFGHIJKLMNOPQRSTUVWXYZ\ddefloop
+\def\argmin{\operatornamewithlimits{arg\,min}}
+\def\E{\mathbf{E}}
+\def\bx{\bd{x}}
+\def\by{\bd{y}}
+\def\bZ{\bd{Z}}
+
+\newcommand{\propnumber}{} % initialize
+\newtheorem*{prop}{Proposition \propnumber}
+\newenvironment{propc}[1]
+  {\renewcommand{\propnumber}{#1}%
+   \begin{shaded}\begin{prop}}
+  {\end{prop}\end{shaded}}
+
+\newcommand{\crlrnumber}{} % initialize
+%\newtheorem*{corollary}{Corollary \crlrnumber}
+\newenvironment{corollaryc}[1]
+  {\renewcommand{\crlrnumber}{#1}%
+   \begin{shaded}\begin{corollary}}
+  {\end{corollary}\end{shaded}}
+
+\theoremstyle{definition}
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\addtobeamertemplate{frametitle}{}{%
+    \begin{textblock*}{5cm}(10.5cm, -0.8cm)
+        \includegraphics[width=0.9cm]{Block_M-Hex.png} % your logo file here
+    \end{textblock*}
+}
+
+\definecolor{mycolor}{cmyk}{100, 60, 0, 60}
+\definecolor{my_maize}{rgb}{0.9608,0.7137,0.2588}
+\definecolor{my_yellow}{rgb}{0.9294,0.8196,0.2706}
+\definecolor{my_blue}{rgb}{0.059, 0, 0.361}
+\definecolor{my_blue2}{rgb}{0.063, 0, 0.38}
+
+
+% \setbeamercolor{section in head/foot}{fg=cyan}
+\setbeamercolor{section in head/foot}{fg=my_maize, bg=my_blue2}
+\setbeamercolor{frametitle}{bg=my_blue, fg=white}
+\setbeamercolor{titlelike}{fg=black,bg=yellow}
+
+% \setbeamercolor{section in head/foot}{bg=mycolor, fg=white} % Change sidebar section color
+\setbeamercolor{subsection in head/foot}{bg=my_blue2, fg=white} % Change subsection sidebar color
+
+% \setbeamertemplate{headline}{}
+% \setbeamertemplate{frametitle}{%
+%     \vbox{%
+%         \vspace{7pt}% Adjust this value to change the vertical position of the title
+%         \leftskip=1.3cm\relax%
+%         \rightskip=1.3cm\relax%
+%         \insertsection\par%
+%         \insertframetitle%
+%     }%
+% }
+\usepackage{url}
+\usepackage{hyperref}
+
+\usepackage{xcolor}
+
+\hypersetup{pdfauthor={Name},
+            colorlinks=true,
+            linkcolor={my_yellow},
+            % citecolor={blue},
+            % linkcolor=[RGB]{0.949, 0.784, 0.035}
+            }
+
+% fix inconsistent colors in cite parenthesis (where the closing parenthesis were black instead of the rest of the citecolor!)
+% https://github.com/josephwright/beamer/issues/671
+\let\oldcite=\cite
+\let\oldcitet=\citet
+\let\oldcitep=\citep 
+\renewcommand{\citet}[2][]{\textcolor{green}{\oldcitet[#1]{#2}}}
+\renewcommand{\citep}[2][]{\textcolor{green}{\oldcitep[#1]{#2}}}
+\renewcommand{\cite}[2][]{\textcolor{green}{\oldcite[#1]{#2}}}
+            
+
+\title[Seminar]{Reading Group - Bayesian Philosophy}
+\author[TCAJ]{Thomas and Aniket}
+\institute[U-M]{University of Michigan}
+
+\date{05 December}
+
+\AtBeginSection[]
+{
+ \begin{frame}<beamer>
+ \frametitle{Plan}
+ \tableofcontents[currentsection]
+ \end{frame}
+}
+
+
+\begin{document}
+
+\begin{frame}[plain]
+\titlepage % Print the title page as the first slide
+\end{frame}
+
+\section{Two core norms}
+
+\begin{frame}{Beliefs aren't all-or-nothing}
+
+Degrees of belief or Credences are a central idea in Bayesian Epistemology.
+
+\emph{`` I strongly believe that I am alive, am fairly confident that I will stay alive until my next conference presentation, less confident that the presentation will go well, and strongly disbelieve that its topic will concern the rise and fall of the Mongol Empire.''}
+    
+\end{frame}
+
+
+\section{Decision Theory}
+\begin{frame}{Regret Theory}
+To study decision theory we can go through the following sequence:
+
+\begin{enumerate}
+  \item Expected Utility 
+  \item Prospect Theory
+  \item Regret Theory - see \url{https://stats.stackexchange.com/a/341434} (alternate theory for decision making under uncertainty)
+\end{enumerate}
+\end{frame}
+
+% \begin{frame}
+%  \frametitle{Overview} % Table of contents slide, comment this block out to remove it
+%  \tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
+% \end{frame}
+
+
+
+% \begin{frame}[allowframebreaks]
+%     \frametitle{References}
+%     \bibliographystyle{chicago}
+
+%     %\bibliographystyle{IEEEtran}
+%     \bibliography{myRef,full_zotero_lib}
+% \end{frame}
+
+\section{Backup}
+\begin{frame}{}
+\begin{center}
+    \Large{Thank you!}
+\end{center}
+        
+\end{frame}
+
+\end{document}
