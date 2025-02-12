@@ -249,16 +249,16 @@
 \renewcommand{\cite}[2][]{\textcolor{green}{\oldcite[#1]{#2}}}
             
 
-\title[Seminar]{More on Stein}
+\title[Seminar]{Towards a Multifidelity Estimate for SVGD}
 % \title[Seminar]{An Adaptive Bayesian Method for Covariance Estimation in Multifidelity Estimators}
 
 % and Estimation of Predictive Uncertainties
 % The short title appears at the bottom of every slide, the full title is only on the title page
 
-\author[AJ]{Aniket}
-\institute[U-M]{University of Michigan}
+% \author[AJ]{Aniket}
+% \institute[U-M]{University of Michigan}
 
-\date{18 June}
+\date{\today}
 
 \AtBeginSection[]
 {
@@ -275,38 +275,157 @@
 \titlepage % Print the title page as the first slide
 \end{frame}
 
-\begin{frame}{Clarification: different initialization, 1-2 particles}
+% \begin{frame}{Clarification: different initialization, 1-2 particles}
 
+
+% \end{frame}
+
+% \begin{frame}{Clarification: different initialization, 1-2 particles}
+     
+
+% \bigskip 
+
+\begin{frame}
+    \textbf{Variational Inference}
+
+    Approximate a target distribution $p(x)$, using a simpler $q^{\ast}(x)$ from a known family, minimize the KL divergence:
+
+    $$q^{\ast} = \arg \min_{q \in \mathcal{Q}}[KL(q || p)]$$
+
+    Desirable properties?!
+
+    - accuracy
+
+    - tractability
+
+    - solvability
+\end{frame}
+
+% \bigskip
+% % Now, onto other interesting aspects of Stein-flavored math!
+% \end{frame}
+
+
+
+\begin{frame}{Non-parametric inference}
+
+\textbf{Stein Variational Gradient Descent}
+(Liu and Wang 2016)
+
+Transports a set of particles ${x_i}_{i=1}^{n}$ to approximate target $p$ by the update at iteration $l$:
+
+FOR $n$ particles:
+    $$x_i^{l+1} \leftarrow x_i^{l} + \epsilon \phi(x_i)$$
+
+What is the optimal choice of the velocity field $\phi$ to push the particles closer to the target distribution?
 
 \end{frame}
 
-\begin{frame}{Clarification: different initialization, 1-2 particles}
+\begin{frame}{Deriving the Velocity Field}
+    If the particles at current step follow distribution $q_{[\epsilon \phi]}$, then we wish to solve:
 
+    $$\phi^{\ast} = \arg \max_{\phi \in \mathcal{F}}\left\{-\frac{d}{d\epsilon}KL(q_{[\epsilon \phi]} || p)|_{\epsilon=0}\right\}$$
 
+    After going through the weeds of defining the function set $\mathcal{F}$ (RKHS formed by scalar-valued functions associated with PD $k$), the authors use the connection between this objective and Stein's identity:
 
+    \begin{aligned}
+        & -\frac{d}{d\epsilon}\mathrm{KL}(q_{[\epsilon\boldsymbol{\phi}]}\parallel p)|_{\epsilon=0}=\mathbb{E}_{x\sim q}[\mathcal{T}_{p}\boldsymbol{\phi}(x)], \\
+        & \mathrm{with}\quad\mathcal{T}_{p}\boldsymbol{\phi}(z)=\nabla_{x}\log p(z)^{\top}\boldsymbol{\phi}(z)+\nabla_{z}^{\top}\boldsymbol{\phi}(z)
+    \end{aligned}
+\end{frame}
 
-Now, onto other interesting aspects of Stein-flavored math!
+\begin{frame}{Stein's Identity}
+    Stein's identity supplies that for $\phi$ and a continuously differentiable $p(x)$:
+
+    $$\mathbb{E}_{x\sim p}[\mathcal{T}_{p}\boldsymbol{\phi}(x)] = 0$$
+
+    (any operator satisfying the above is Stein's operator, and $\phi$ is in the Stein class of $p$)
+
+    We end up with a closed form update for $\phi$:
+
+    $$\boldsymbol{\hat{\phi}}^*(x_i^{\ell})=\frac{1}{n}\sum_{i=1}^n (\underbrace{\textcolor{red}{k(x_j^\ell,x_i^\ell)\nabla_{x_j^\ell}\log p(x_j^\ell)}}_{\text{Towards target distribution}}+\underbrace{\textcolor{blue}{\nabla_{x_j^\ell}k(x_j^\ell,x_i^\ell)}}_{\text{Repulsive force keeping particles apart}})$$
+
+\end{frame}
+
+\begin{frame}{Toy Examples}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\linewidth]{GaussianDensity.png}
+        \caption{Toy Problem 1- Gaussian Density}        
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Toy Examples}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\linewidth]{NealsFunnel.png}
+        \caption{Toy Problem 2 - Neals Funnel}        
+    \end{figure}
 \end{frame}
 
 
-\begin{frame}{Fun fact}
-(from `A Conversation with Charles Stein' by Morris H. DeGroot)
-\emph{``There are grave difficulties in trying to apply the Bayesian notions to interesting problems because of the difficulty of choosing a prior distribution.''}
-  
-Full interview: \url{https://www.jstor.org/stable/2245793?seq=6}
+\begin{frame}{No free lunch}
+    This works out great, but of course in practice there are scaling issues!
 
-Stein lent his name to a lot of things: Stein's paradox, the James-Stein estimator, Stein's identity, Stein operator, etc.
+    - All methods that use kernels (kernel-based hypothesis testing, vanilla SVGD) fail eventually as the curse of dimensionality hits! SVGD will end up collapsing to the modes of the target distribution
 
-We will talk a bit more about Stein's identity and choice of Stein operator.
+    - So, most improvements center around - deriving projected transport maps based on active subspaces, message passing variants that solve several lower-dimensional problems and so on.
+
+    Missing pieces:
+
+    - \textcolor{orange}{Dealing with the cost of expensive likelihood updates}
+
+    - Dealing with a suitable choice of kernel, and reducing complexity of the particle-wise force updates.
 \end{frame}
 
-\begin{frame}{References}
-  \begin{enumerate}
-    \item Kubokawa, T. Stein's identities and related topics. \url{https://doi.org/10.1007/s42081-023-00239-6}
+\begin{frame}{Approximate Control Variate-based formulation}
+Can we use ACVs to exploit correlations between simulators of different fidelities and converge to a target density? \textbf{Maybe}
+
+
+Current generous assumption:
+
+- Direct access to probability densities associated with each model $p_0(x), p_1(x), \cdots, p_m(x)$ ($p_0$ is our high-fidelity target)
+
+- All models are defined on the same set of parameters, alternately, we can project them to a shared parameter space.
+
+For every particle, the ACV-SVGD update takes the form:
+
+\begin{align}
+    \Tilde{\phi}(x_i, z,\alpha,\mathcal{A}) &= 
+    \hat{\phi}_{0}(x_i, z_{0})+\sum^{M}_{m=1}\alpha_{m}\left( \hat{\phi}_{m}(x_i, z^{\ast}_{m})-\hat{\mu}_{m}(x_i, z_{m}) \right) \nonumber\\ 
+\end{align}
+
+\end{frame}
+
+
+\begin{frame}{Loosely related works}
+    Things that might bear some resemblance to this, but will require more careful reading:
+
+    - Learning CDFs in an ACV framework -  \url{https://arxiv.org/abs/2303.06422}
+
+    - HMC swindles - ``chains targeting slightly different stationary distributions still couple approximately when driven by the same randomness'' - antithetic sampling and control variates - \url{https://proceedings.mlr.press/v108/piponi20a/piponi20a.pdf}
+
+    - Stein control variates - \url{https://arxiv.org/pdf/1710.11198}
+
+    - Generalized Stein's identity for vector-valued control variates - \url{https://proceedings.mlr.press/v202/sun23a/sun23a.pdf}
+
     
-    \item Kattumannil, S.K. On Stein's Identity and its Application. \url{https://www.isid.ac.in/~statmath/2008/isid200805.pdf}
-  \end{enumerate}
 \end{frame}
+
+
+
+
+% \begin{frame}{References}
+%   \begin{enumerate}
+%     \item Kubokawa, T. Stein's identities and related topics. \url{https://doi.org/10.1007/s42081-023-00239-6}
+    
+%     \item Kattumannil, S.K. On Stein's Identity and its Application. \url{https://www.isid.ac.in/~statmath/2008/isid200805.pdf}
+%   \end{enumerate}
+% \end{frame}
+
+% \begin{frame}
+    
+% \end{frame}
 
 
 \begin{frame}{Notes}
@@ -316,274 +435,32 @@ We will talk a bit more about Stein's identity and choice of Stein operator.
 
 
 
-% \begin{frame}
-%  \frametitle{Overview} % Table of contents slide, comment this block out to remove it
-%  \tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
-% \end{frame}
-
-% \section{Background}
-% \begin{frame}{ODEs and PDEs}
-% \textbf{Paper:} \cite{Chkrebtii2016}
-
-% $$u: \mathcal{D} \times \Theta \to \mathbb{R}^p$$ satisfies a PDE for $(x, t) \in \mathcal{D} \cup \partial \mathcal{D}$:
-
-% $$F(x, t, \partial_t u, \partial_{x_1} u, \cdots, u, \theta)=0$$
-
-% Solution: $u^{\ast}(x, t)$ - generally not available in closed form.
-
-% \textbf{Approximation:} $N$-dimensional: $\hat{u}^N(x, t, \theta)$ for size $N$ partitioning of domain $\mathcal{D}$
-
-% \end{frame}
-
-% \begin{frame}{Addressing Uncertainties}
-% Commonly, forward UQ propagates of uncertainties from $\theta$ to $\hat{u}$
-
-% \textbf{Verification}: \cite{roy_comprehensive_2011} - The characterization of the numerical approximation errors associated with a simulation. Includes:
-
-% \begin{enumerate}
-% \item Discretization error (usually the largest)
-% \item Iterative convergence errors (equations resulting from discretization are solved approximately)
-% \item Round off errors
-% \end{enumerate}
-
-% \textbf{Neglected: } \emph{Verification error} - Discretization errors are often ignored in practice. Introduces perturbations leading to exponential divergence from exact solution in \textcolor{red}{chaotic systems.}
-
-% \emph{Costly} to maintain fine-enough mesh to ignore discretization-related issues.
-
-% \end{frame}
-
-% \begin{frame}{Objective of Paper}
-%     \begin{enumerate}
-%         \item Model discretization uncertainty through lens of Bayesian methods.
-        
-%         \item Develop probabilistic solution marginalized over model queries $f_n$ at grid locations.
-        
-%         \item Show application of methods as diagnostic tool for discretization effects in posterior under-coverage.
-%     \end{enumerate}
-% \end{frame}
-
-% \begin{frame}{Related Work}
-% \begin{enumerate}
-%     \item \emph{Early work} - Bayesian solution for ODEs - \cite{Skilling1992}
-
-%     \item Probabilistic Numerics \cite{hennig_probabilistic_2015} - highlight connections between `deterministic' numerical algorithms and probabilistic priors e.g. Quadrature rules as varying assumptions for GP parameters / kernel functions. \footnote[1]{follow up: recast ODEs as state estimation problems}
     
-%     \begin{figure}
-%         \centering
-%         \includegraphics[width=0.45\textwidth]{rspa20150142f01.jpg}
-%         % \caption{Integration with different kernel functions}
-%         \label{f: quad_bayes}
-%     \end{figure}
-        
-%     % (\textbf{follow up works treat probabilistic models as state estimation problems})
-
-%     \item GP Learning for noisy state data \cite{ye_gaussian_2023}
-% \end{enumerate}
-
-% \end{frame}
-
-% % \begin{frame}{Notation}
 
 
-% % \end{frame}
-
-% \section{Methodology}
-% \begin{frame}{Methodology I}
-
-% Model uncertainty jointly for time derivative and solution $(u_t, u)$
-
-% \textbf{Prior Model: }
-% $$\left.\begin{bmatrix}u_t(\mathbf{t_j})\\u(\mathbf{t_k})\end{bmatrix}\sim\mathcal{GP}\left(\begin{bmatrix}m_t^0(\mathbf{t_j})\\m^0(\mathbf{t_k})\end{bmatrix}\right.,\begin{bmatrix}C_t^0(\mathbf{t_j},\mathbf{t_j})&\int_0^{\mathbf{t_k}}C_t^0(\mathbf{t_j},\mathbf{z})\mathrm{d}\mathbf{z}\\\int_0^{\mathbf{t_k}}C_t^0(\mathbf{z},\mathbf{t_j})\mathrm{d}\mathbf{z}&C^0(\mathbf{t_k},\mathbf{t_k})\end{bmatrix}\right)$$
-
-% \textbf{Covariance Operators:}
-
-% $R_\lambda (t_j, t_k) = \exp (-(t_j - t_k)^2)/2\lambda^2$
-
-% $R_\lambda (t_j, t_k) = \mathbf{1}_{(t_j - \lambda, t_j + \lambda)}(t_k)$ - for models with second derivative discontinuities.
-
-% $Q_\lambda (t_j, t_k) = \int_{0}^{t_j}R_\lambda (z, t_k) dz$
-
-% Convolve operators with themselves for prior covariance.
-
-% \end{frame}
-
-% \begin{frame}{Covariances}
-
-% $$\begin{aligned}C_t^0(t_j,t_k)=\alpha^{-1}\int_{\mathbb{R}}R_\lambda(t_j,z)R_\lambda(t_k,z)\mathrm{d}z,\end{aligned}$$
-
-% $$C^0(t_j,t_k)=\alpha^{-1}\intop_{\mathbb{R}}Q_\lambda(t_j,z)Q_\lambda(t_k,z)\mathrm{d}z$$
-
-% Parameters: Lengthscale $\lambda$, Prior precision $\alpha$
-
-% \end{frame}
-
-% \begin{frame}{Constraints}
-
-% The means should be related as follows for all times:
+\begin{frame}{Fun facts}
+    (from `A Conversation with Charles Stein' by Morris H. DeGroot)
+    \emph{``There are grave difficulties in trying to apply the Bayesian notions to interesting problems because of the difficulty of choosing a prior distribution.''}
     
-%     $$\int m_t^0 (z) dz = m^0(t)$$
-
-% Enforce the initial condition i.e.  $u(0)=u_0=m^0(0)$ (this is ensured by the previous convolutions! - since $C^0(0, 0)=0$) (see supplementary material for closed form expressions - \url{https://www.doi.org/10.1214/16-BA1017SUPP})
-
-% Analogously define the cross covariance terms:
-
-% $$\begin{aligned}\int_0^{t_j}C_t^0(z,t_k)\mathrm{d}z~=~\alpha^{-1}\int_{\mathbb{R}}Q_\lambda(t_j,z)R_\lambda(t_k,z)\mathrm{d}z\end{aligned}$$
-
-% \end{frame}
-
-
-% \begin{frame}{Methodology II}
-% \textbf{Sequence of updates: }
-
-% \textbf{First Update:}
-% $s=(s_1, \cdots, s_N)$ - pre-discretized grid in time for model updates
-
-% $s_1$ = 0 i.e. evaluate RHS for known IC!
-
-% $f_1 \equiv f(s_1, u^{\ast}(s_1), \theta) = u_t^{\ast}(s_1)$
-
-% Condition on $f_1$ to update the prior GP:
-% $$\left [ \begin{bmatrix}u_t(\mathbf{t_j})\\u(\mathbf{t_k})\end{bmatrix} \vert f_1 \right ]\sim\mathcal{GP}\left (\begin{bmatrix}m_t^1(\mathbf{t_j})\\m^1(\mathbf{t_k})\end{bmatrix},\begin{bmatrix}C_t^1(\mathbf{t_j},\mathbf{t_j})&\int_0^{\mathbf{t_k}}C_t^1(\mathbf{t_j},\mathbf{z})\mathrm{dz}\\ \int_0^{\mathbf{t_k}}C_t^1(\mathbf{z},\mathbf{t_j})\mathrm{dz}&C^1(\mathbf{t_k},\mathbf{t_k})\end{bmatrix} \right )$$
-
-% \end{frame}
-
-% \begin{frame}{Mean and covariance expressions}
-%     $$\begin{gathered}
-%         m_t^1(\mathbf{t_j}) =m_t^0(\mathbf{t_j})+C_t^0(\mathbf{t_j},s_1)C_t^0(s_1,s_1)^{-1}\textcolor{red}{\left\{\text{f}_1-m_t^0(s_1)\right\}}, \\
-%         m^1(\mathbf{t_k}) =m^0(\mathbf{t_k})+C_t^0(s_1,s_1)^{-1}\intop_0^\mathbf{t_k}C_t^0(\mathbf{z},s_1)\mathrm{d}\mathbf{z}\textcolor{red}{\left\{\mathrm{f}_1-m_t^0(s_1)\right\}}, 
-%         \end{gathered}$$
-
-%         $$\begin{aligned}
-%             C_t^1(\mathbf{t_j},\mathbf{t_j})& =C_t^0(\mathbf{t_j},\mathbf{t_j})-C_t^0(\mathbf{t_j},s_1)C_t^0(s_1,s_1)^{-1}C_t^0(s_1,\mathbf{t_j}),  \\
-%             C^1(\mathbf{t_k},\mathbf{t_k})& =C^0(\mathbf{t_k},\mathbf{t_k})-\left\{\intop_0^{t_k} C_t^0(\mathbf{z},s_1)\mathrm{d}\mathbf{z}\right\}C_t^0(s_1,s_1)^{-1}\\\left \{\int_0^{t_k}C_t^0(\mathbf{z},s_1)\mathrm{d}\mathbf{z}\right \}
-%         \end{aligned}$$
+    % \emph{``Not publishing a lot of interesting results: That results from a certain laziness and perfectionism in the bad sense.''}
+      
+    Full interview: \url{https://www.jstor.org/stable/2245793?seq=6}
     
-% \end{frame}
-
-% \begin{frame}{Updates at unknown $f$}
-% Draw multiple samples of state at next timestep from $m^1$ and $C^1$:
-
-% $$u(s_2) \sim \mathcal{N}(m^1(s_2), C^1(s_2))$$
-
-% Get derivative at $s_2$ from known dynamics:
-% $$f_2 \equiv f(s_2, u_1(s_2), \theta)$$
-
-% Unknown PDF for $f_2$ in absence of exact solution!
-
-% \textbf{Assumption: } Discrepancy decreases with decreasing uncertainty in value of $u(s_2)$, Gaussian error model:
-
-% $$f_2 | u_t, f_1 \sim \mathcal{N}(u_t(s_2), \textcolor{red}{C_t^1(s_2, s_2)=r_1(s_2)})$$
-
-
-% \end{frame}
-
-% \begin{frame}{Methodology III}
-
-% Updated GP:
-
-% $\left [ \begin{bmatrix}u_t(\mathbf{t_j})\\u(\mathbf{t_k})\end{bmatrix} \bigg{\vert} f_2, f_1 \right ]\sim\mathcal{GP}\left (\begin{bmatrix}m_t^2(\mathbf{t_j})\\m^2(\mathbf{t_k})\end{bmatrix},\begin{bmatrix}C_t^2(\mathbf{t_j},\mathbf{t_j})&\int_0^{\mathbf{t_k}}C_t^2(\mathbf{t_j},\mathbf{z})\mathrm{dz}\\ \int_0^{\mathbf{t_k}}C_t^2(\mathbf{z},\mathbf{t_j})\mathrm{dz}&C^2(\mathbf{t_k},\mathbf{t_k})\end{bmatrix} \right )$
-
-
-% Repeat steps up to $s_N$, final output: Posterior probability distribution $[u_t, u | f]$
-
-% \textbf{Key Result: } For $r_n(s)=0$ i.e. no uncertainty in estimation of $f_{2, \cdots, N}$ the GP converges in $L^1$ to exact solution as the grid is refined:
-
-% $$\begin{aligned}\operatorname{E}\left(|u(t)-u^*(t)|\mid N\right)&=O(h),\quad\mathrm{~as~}\alpha^{-1},\lambda\to0\end{aligned}$$
-
-% \end{frame}
-
-
-% \begin{frame}{Methodology IV}
-% \textbf{Hyperparameter updates:}
-% Observe states through noisy measurements described by action of operator $H$, infer hyperparameters through MCMC (Algorithm 2 of paper)
-% % $$\begin{array}{rcl}\left[\mathbf{y}\mid\mathbf{u},\theta,\Sigma\right]&\propto&\rho\left\{\mathbf{y}-H\left(\mathbf{u},\theta\right)\right\},\\[\mathbf{u}\mid\theta,\Psi,N]&=&p\left(\mathbf{u}\mid\theta,\Psi,N\right),\\[\theta,\Psi,\Sigma]&=&\pi(\theta,\Psi,\Sigma),\end{array}$$
-
-% \end{frame}
-
-% \section{Key Results, Paper II}
-% \begin{frame}{Results I}
-%     Provide quantified discretization uncertainty for nonlinear delay system - suggestion is that lack of model fit to measurements means model discrepancy must be addressed.
-
-%     \begin{figure}
-%         \centering
-%         \includegraphics[width=0.8\textwidth]{disc_uc.png}
-%         % \caption{Integration with different kernel functions}
-%         \label{f: disc_uc}
-%     \end{figure}
-
-
-%     (show other results from paper)
-% \end{frame}
-
-% \begin{frame}{TLDR for Paper II}
-% Link: \cite{ye_gaussian_2023}
-% Similar ideas for problem setup (except specification of mean function, and no updating of GP over multiple timesteps - direct fit to observed data)!
-% $$\left.\begin{bmatrix}x_i(t)\\\dot{x}_i(t)\end{bmatrix}\sim\text{vec-}\mathcal{GP}\left(\begin{bmatrix}0\\0\end{bmatrix}\right.,\begin{bmatrix}\kappa_i(t,t^{\prime})&\partial_{t^{\prime}}\kappa_i(t,t^{\prime})\\\partial_t\kappa_i(t,t^{\prime})&\partial_t\partial_{t^{\prime}}\kappa_i(t,t^{\prime})\end{bmatrix}\right)$$
-
-
-% Joint normal distribution on states $u_i$ and derivatives $d_i$:
-% $p\left(\mathbf{d}_{i}=f_{i}(\mathbf{U};\boldsymbol{\theta}_{i}),\mathbf{u}_{i}|\boldsymbol{\theta}_{i}\right)\propto\exp \left ( -\frac12\begin{bmatrix}f_{i}(\mathbf{U};\boldsymbol{\theta}_{i})\\\mathbf{u}_{i}\end{bmatrix}.^{\mathsf{T}}\begin{bmatrix}\mathbf{K}_{i}^{dd}&\mathbf{K}_{i}^{du}\\\mathbf{K}_{i}^{ud}&\mathbf{K}_{i}^{uu}\end{bmatrix}^{-1}\begin{bmatrix}f_{i}(\mathbf{U};\boldsymbol{\theta}_{i})\\\mathbf{u}_{i}\end{bmatrix} \right )$
-% \end{frame}
-
-% \begin{frame}{TLDR for Paper II}
-%     Fit data points to GP described by above, and get posterior update for $\theta$:
-
-%     $\begin{gathered}p\left(\boldsymbol{\theta}_i|\mathbf{d}_i=f_i(\mathbf{U};\boldsymbol{\theta}_i),\mathbf{u}_i\right)\propto p\left(\mathbf{d}_i=f_i(\mathbf{U};\boldsymbol{\theta}_i),\mathbf{u}_i|\left.\boldsymbol{\theta}_i\right)p(\boldsymbol{\theta}_i)\right.\\\propto \exp\left(-\frac12\left(f_i(\mathbf{U};\boldsymbol{\theta}_i)^\mathsf{T}\mathbf{R}_i^{dd}f_i(\mathbf{U};\boldsymbol{\theta}_i)+2f_i(\mathbf{U};\boldsymbol{\theta}_i)^\mathsf{T}\mathbf{R}_i^{du}\mathbf{u}_i+\|\boldsymbol{\theta}_i\|_{\boldsymbol{\Lambda}_i}^2\right)\right)\end{gathered}$
+    Stein lent his name to a lot of things: Stein's paradox, the James-Stein estimator, Stein's identity, Stein operator, etc.
     
-% \end{frame}
-
-
-% \begin{frame}{Results II}
+    \url{https://sites.google.com/site/steinsmethod/articles}
     
-% Results provided for extrapolation of trajectories given noisy data (cases of known parametrization and parametrization approximated by shallow NN)
-
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=0.8\textwidth]{noisy_data_reconstruction.png}
-%     % \caption{Integration with different kernel functions}
-%     \label{f: noisy_uc}
-% \end{figure}
-% \end{frame}
+    % We will talk a bit more about Stein's identity and choice of Stein operator.
+\end{frame}
 
 
-% \begin{frame}{TLDR for Paper III}
-%     Gaussian Processes meet Neural ODEs (learning dynamics, model calibration etc.) - \url{https://doi.org/10.1098/rsta.2021.0201} \cite{bhouri_gaussian_2022}
+\begin{frame}[allowframebreaks]
+    \frametitle{References}
+    \bibliographystyle{chicago}
 
-%     Differences from Paper II:
-
-% \end{frame}
-
-% \begin{frame}{TLDR for Paper IV}
-%     Latent Force Models \url{https://proceedings.mlr.press/v5/alvarez09a.html} \cite{pmlr-v5-alvarez09a}
-% \end{frame}
-
-% \begin{frame}{Summing up}
-% \begin{itemize}
-% \item GPs offer a convenient means to build probabilistic models for estimating states with numerical approximations / data-driven methods. (case of exact but unknown solution, not misspecified model in paper 1!) - however potential \emph{scalability issues} for large $N$ and large input size (paper II)
-
-% \item The key assumptions lie in selection of kernel functions, error process for derivatives in subsequent updates - important to avoid physically inconsistent trajectories.
-
-% \item Above schemes need to be extended to higher-order deterministic solvers, adaptive step-size solvers and so on - this falls neatly into the works for \textcolor{red}{\emph{probabilistic numerics!}}
-% \end{itemize}
-% \end{frame}
-
-
-% \begin{frame}{Additional Resources:}
-% \begin{enumerate}
-%     \item Filtering Approach for ODEs: \url{https://probnum.readthedocs.io/en/latest/tutorials/odes/uncertainties_odefilters.html}
-    
-%     \item Code for Paper 1: \url{https://github.com/ochkrebtii/uqdes}
-% \end{enumerate}
-% \end{frame}
-
-
-% \begin{frame}[allowframebreaks]
-%     \frametitle{References}
-%     \bibliographystyle{chicago}
-
-%     %\bibliographystyle{IEEEtran}
-%     \bibliography{myRef}
-% \end{frame}
+    %\bibliographystyle{IEEEtran}
+    \bibliography{references}
+\end{frame}
 
 % \section{Backup}
 % \begin{frame}{}
