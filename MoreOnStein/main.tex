@@ -1,4 +1,4 @@
-\documentclass[usenames,dvipsnames]{beamer}
+\documentclass[usenames,dvipsnames,aspectratio=169]{beamer}
 
 \mode<presentation> {
 
@@ -111,6 +111,15 @@
 % \usepackage{multimedia}
 \usepackage{media9}
 
+\usepackage[utf8]{inputenc}
+\usepackage{pgfplots}
+\DeclareUnicodeCharacter{2212}{−}
+\usepgfplotslibrary{groupplots,dateplot}
+\usetikzlibrary{patterns,shapes.arrows}
+\pgfplotsset{compat=newest}
+
+
+
 \def\E{\mathbf{E}}
 \def\PP{\mathbf{P}}
 \def\Reals{\mathbb{R}}
@@ -172,7 +181,12 @@
 % \newtheorem{definition}
 
 
-
+\addtobeamertemplate{navigation symbols}{}{%
+    \usebeamerfont{footline}%
+    \usebeamercolor[fg]{footline}%
+    \hspace{1em}%
+    \insertframenumber
+}
 
 % \setbeamertemplate{headline}{% 
 %     \leavevmode%
@@ -212,7 +226,8 @@
 % \logo{\includegraphics[height=1cm]{Slides/Block_M-Hex.png}}
 
 \addtobeamertemplate{frametitle}{}{%
-    \begin{textblock*}{5cm}(10.5cm, -0.8cm)
+    % \begin{textblock*}{5cm}(10.5cm, -0.8cm)
+    \begin{textblock*}{5cm}(13.5cm, -0.8cm)
         \includegraphics[width=0.9cm]{Block_M-Hex.png} % your logo file here
     \end{textblock*}
 }
@@ -222,10 +237,17 @@
 \definecolor{my_yellow}{rgb}{0.9294,0.8196,0.2706}
 
 % \setbeamercolor{section in head/foot}{fg=cyan}
-\setbeamercolor{section in head/foot}{fg=my_maize}
+\setbeamercolor{section in head/foot}{fg=white}
 
 \setbeamercolor{frametitle}{bg=mycolor}
 \setbeamercolor{titlelike}{fg=black, bg=yellow}
+
+\setbeamercolor{section in toc}{fg=black} % Change section color
+\setbeamercolor{subsection in toc}{fg=black} % Change subsection color
+
+\setbeamercolor{footline}{fg=blue}
+\setbeamerfont{footline}{series=\bfseries}
+
 
 \usepackage{url}
 \usepackage{hyperref}
@@ -249,30 +271,35 @@
 \renewcommand{\cite}[2][]{\textcolor{green}{\oldcite[#1]{#2}}}
             
 
-\title[Seminar]{Towards a Multifidelity Estimate for SVGD}
+\title[Seminar]{Bayesian Optimal Experimental Design for Adaptive Training of Neural Network Surrogate Models}
 % \title[Seminar]{An Adaptive Bayesian Method for Covariance Estimation in Multifidelity Estimators}
 
 % and Estimation of Predictive Uncertainties
 % The short title appears at the bottom of every slide, the full title is only on the title page
 
-% \author[AJ]{Aniket}
-% \institute[U-M]{University of Michigan}
+\author[AJ]{Aniket Jivani, Xun Huan}
+\institute[U-M]{University of Michigan}
 
 \date{\today}
 
-\AtBeginSection[]
-{
- \begin{frame}<beamer>
- \frametitle{Plan}
- \tableofcontents[currentsection]
- \end{frame}
-}
+% \AtBeginSection[]
+% {
+%  \begin{frame}<beamer>
+%  \frametitle{Plan}
+%  \tableofcontents[currentsection]
+%  \end{frame}
+% }
 
+\makeatletter
+\def\beamer@finalpage{}
+\makeatother
 
 \begin{document}
 
 \begin{frame}
 \titlepage % Print the title page as the first slide
+\vspace{}
+\center SIAM CSE 2025
 \end{frame}
 
 % \begin{frame}{Clarification: different initialization, 1-2 particles}
@@ -285,21 +312,250 @@
 
 % \bigskip 
 
-\begin{frame}
-    \textbf{Variational Inference}
+\section[Background]{Background and Motivation}
+\begin{frame}{Background: Optimal Experimental Design}
 
-    Approximate a target distribution $p(x)$, using a simpler $q^{\ast}(x)$ from a known family, minimize the KL divergence:
+A framework to answer: what design conditions or knobs for running an experiment are the “best”?
+   
+The notion of best needs to be tailored to the goals of the experimenter. Examples:
 
-    $$q^{\ast} = \arg \min_{q \in \mathcal{Q}}[KL(q || p)]$$
+\begin{itemize}
 
-    Desirable properties?!
+\item reduction in uncertainty of free parameters
 
-    - accuracy
 
-    - tractability
 
-    - solvability
+\item reduction in uncertainty of QoIs based on model parameters
+
+\pause
+
+\item calibration to minimize distance to observed data
+
+\item improve correlations between models of multiple fidelities
+
+and many more $\ldots$
+\end{itemize}
+
+
+
 \end{frame}
+
+
+\begin{frame}{Background}
+When high-fidelity model evaluations are too expensive, we typically:
+
+\begin{itemize}
+    \item build a surrogate model after collecting data in one shot
+    
+    \item use evaluated surrogate as a replacement for the forward model in future inference tasks.
+\end{itemize}
+
+\begin{figure}
+    \centering
+    % \scalebox{0.07}{\includegraphics{surr_workflow.jpg}}
+    \includegraphics[width=0.9\textwidth]{workflow_better.png}
+\end{figure}
+
+
+\end{frame}
+
+\begin{frame}{Objective}
+    Can we setup training of surrogate models as an OED problem?
+
+    \textbf{Proposed Approach}:
+
+    - Quantify uncertainty in parameters of surrogate model via Bayesian Inference
+
+    - Iterate between inference and maximization of EIG criterion to select new training points.
+    
+\end{frame}
+
+\begin{frame}{Proposed Workflow}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.95\textwidth]{workflow_ours.png}
+    \end{figure}
+\end{frame}
+
+\section[Bayesian Inference]{Bayesian Inference}
+\begin{frame}{Definition}
+Quantify and update uncertainties in parameters $\theta$ after collecting new observations via Bayes' rule:
+    $$p(w | y) = \frac{p(y | w) p(w)}{p(y)}$$
+
+    \vspace{-0.5cm}
+    
+    \begin{minipage}{0.45\linewidth}
+        \centering
+        \resizebox{0.86\textwidth}{!}{\input{prior_bi.tex}}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\linewidth}
+        \centering
+        \resizebox{0.86\textwidth}{!}{\input{posterior_bi.tex}} % Second figure
+    \end{minipage}
+\end{frame}
+
+\begin{frame}{Setting up a BNN}
+
+    \textbf{Variational Inference (VI)}
+
+    Approximate a target distribution $p(w | x, y)$, using a simpler $q^{\ast}_{\phi}(w | x, y)$ from a known family, minimize the KL divergence:
+
+    $$q^{\ast} = \arg \min_{q \in \mathcal{Q}}[D_{\text{KL}}(q || p)]$$
+
+    \begin{itemize}
+        \item \textcolor{purple}{[Blundell et al. 2015]} BayesByBackprop: Mean-field VI - maximize evidence lower bound (ELBO) and learn $\phi$ for independent Gaussian distributions on weights via backpropagation.
+        
+        \item Improved variance reduction for minibatches by Flipout-based VI \textcolor{purple}{[Wen et al., 2018]}
+    \end{itemize}    
+\end{frame}
+\begin{frame}{Stein Variational Gradient Descent}
+
+    \textcolor{purple}{[Liu and Wang, 2016]} Removes restrictive assumptions regarding independence of weights by transporting a set of particles to approximate the true posterior density.
+
+    For $n$ particles initialized from $q(w)$, update positions at every iteration $\ell$ via:
+    $$w_i^{\ell+1} \leftarrow w_i^{\ell} + \epsilon \boldsymbol{\hat{\phi}}(w_i^{\ell})$$
+
+    where:
+    $$\boldsymbol{\hat{\phi}}^*(w_i^{\ell})=\frac{1}{n}\sum_{i=1}^n (\underbrace{\textcolor{red}{k(w_j^\ell,w_i^\ell)\nabla_{w_j^\ell}\log p(w_j^\ell | G, d)}}_{\text{Push towards high-density regions of target}}+\underbrace{\textcolor{blue}{\nabla_{w_j^\ell}k(w_j^\ell,x_i^\ell)}}_{\text{Repulsive force preventing mode collapse}})$$
+
+\end{frame}
+
+\begin{frame}{Example of SVGD}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\linewidth]{GaussianDensity.png}        
+    \end{figure}
+\end{frame}
+
+\section[OED]{Optimal Experimental Design}
+\begin{frame}{Setup for OED}
+    \begin{equation}
+        y = G(\theta_{\textrm{model}}, d) + \varepsilon
+        \label{eq: general_obs_model} \nonumber
+    \end{equation}
+    
+    \begin{equation}
+        G = \textcolor{red}{\tilde{G}(\theta_{\textrm{model}}, d, w)} + \eta \nonumber
+        \label{eq: general_surr_model}
+    \end{equation}
+
+$y, \epsilon$: observations and noise model
+
+$G, d$: forward model and design variables
+
+$\theta, w$: weights of forward model and surrogate
+
+$\tilde{G}$: surrogate model parametrized by $w$
+
+$\eta$: Discrepancy term
+\end{frame}
+
+\begin{frame}{Choosing $\eta$}
+
+Since we assume no stochasticity in our simulator output, a reasonable choice for the discrepancy is:
+
+\begin{equation}
+    \eta \sim \mathcal{G}\mathcal{P}(0, K_\phi((\theta_{\textrm{model}}, d), (\theta_{\textrm{model}}', d'))) \nonumber
+\end{equation}
+
+We use a GP with hyperparameters $\phi$ on the covariance kernel. This effectively models the residual or correction term and reduces the uncertainty near the training data.
+    
+\end{frame}
+
+\begin{frame}{EIG on Surrogate Model Parameters}
+    For networks built with training snapshots varying with $d$, select $d$ for next experiment via: 
+
+
+    $$d^{\ast} = \arg \max_{d} U(d) = \arg \max_{d} \mathbb{E}_{G | d} \left[ D_{\text{KL}} \left(p(w | G, d) || p(w) \right)\right]$$
+
+    \begin{align*}
+        U(d) &= \int_{\mathcal{G}} \int_{\mathcal{W}} \ln \left[\frac{p(w | G, d)}{p(w)}\right]  p(G, w | d) dG dw \nonumber \\
+        &= \int_{\mathcal{G}} \int_{\mathcal{W}} \left[\ln[p(G| w, d)] - \ln[p(G | w)]\right] p(G | w, d) p(w) dw dG \nonumber \\
+        &\approx \frac{1}{N_{\textrm{out}}} \sum_{i=1}^{N_{\textrm{out}}}\left[\ln[p(G^{(i)} | w^{(i)}, d] - \ln \left[\frac{1}{N_{\textrm{in}}}\sum_{j=1}^{N_{\textrm{in}}}(p(G^{(i)} | w^{(i, j)}, d))\right]\right] \nonumber \\
+        \label{eq: util} \nonumber
+    \end{align*}
+
+    At every stage, we:
+    \begin{enumerate}
+        \item Select a batch of optimal designs. For a single design, evaluate DNMC estimator on a fine grid, for larger batches, run Bayesian Optimization on select evaluations of $U$.
+        
+        \item Warm start BNN training with augmented designs and true labels.
+    \end{enumerate}
+
+\end{frame}
+
+
+\section{Example}
+\begin{frame}{Posterior comparisons}
+\begin{equation*}
+    G(d) = 0.4 \sin(4d) + 0.5 \cos(12d)
+\end{equation*}
+
+$\tilde{G}$ is a 2-hidden layer network with 8 units each.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.95\textwidth]{post_predictive_pilot.png}
+    \caption{Results from BNN training with MFVI and SVGD on pilot set.}
+\end{figure}
+\end{frame}
+
+\begin{frame}{SVGD Posterior on Weights}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.7\textwidth]{svgd_pilot_post.png}        
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Retraining with Acquired Points}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.9\textwidth]{bt1_retrained.png}        
+    \end{figure}
+\end{frame}
+
+\begin{frame}{}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.7\textwidth]{post_predictive_2.png}        
+    \end{figure}
+
+
+The quality of the fitted NN strongly depends on the pilot training set - here it smoothly interpolates in the middle of the domain where we have gaps in the training data.
+\end{frame}
+
+\begin{frame}{Initializing with a Different Pilot Set}
+    \begin{figure}[H]
+        \includegraphics[width=0.85\textwidth]{post_predictive_center_point.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Batch to batch weight posteriors}
+    \begin{figure}
+        \centering
+        % \includegraphics[width=1.1\textwidth]{weight_uncertainties_b2b.png}        
+
+        \includegraphics[width=0.9\textwidth]{batch_posterior_comparisons.png}        
+    \end{figure}
+\end{frame}
+
+% \begin{frame}{Comparison to randomly acquired training points}
+
+    
+% \end{frame}
+
+
+
+
+% \begin{frame}{Goal-oriented Design}
+    
+% \end{frame}
+
+
+% \begin{frame}{Model-based Sensitivity Analysis}
+
+% \end{frame}
+
 
 % \bigskip
 % % Now, onto other interesting aspects of Stein-flavored math!
@@ -307,110 +563,36 @@
 
 
 
-\begin{frame}{Non-parametric inference}
-
-\textbf{Stein Variational Gradient Descent}
-(Liu and Wang 2016)
-
-Transports a set of particles ${x_i}_{i=1}^{n}$ to approximate target $p$ by the update at iteration $l$:
-
-FOR $n$ particles:
-    $$x_i^{l+1} \leftarrow x_i^{l} + \epsilon \phi(x_i)$$
-
-What is the optimal choice of the velocity field $\phi$ to push the particles closer to the target distribution?
-
-\end{frame}
-
-\begin{frame}{Deriving the Velocity Field}
-    If the particles at current step follow distribution $q_{[\epsilon \phi]}$, then we wish to solve:
-
-    $$\phi^{\ast} = \arg \max_{\phi \in \mathcal{F}}\left\{-\frac{d}{d\epsilon}KL(q_{[\epsilon \phi]} || p)|_{\epsilon=0}\right\}$$
-
-    After going through the weeds of defining the function set $\mathcal{F}$ (RKHS formed by scalar-valued functions associated with PD $k$), the authors use the connection between this objective and Stein's identity:
-
-    \begin{aligned}
-        & -\frac{d}{d\epsilon}\mathrm{KL}(q_{[\epsilon\boldsymbol{\phi}]}\parallel p)|_{\epsilon=0}=\mathbb{E}_{x\sim q}[\mathcal{T}_{p}\boldsymbol{\phi}(x)], \\
-        & \mathrm{with}\quad\mathcal{T}_{p}\boldsymbol{\phi}(z)=\nabla_{x}\log p(z)^{\top}\boldsymbol{\phi}(z)+\nabla_{z}^{\top}\boldsymbol{\phi}(z)
-    \end{aligned}
-\end{frame}
-
-\begin{frame}{Stein's Identity}
-    Stein's identity supplies that for $\phi$ and a continuously differentiable $p(x)$:
-
-    $$\mathbb{E}_{x\sim p}[\mathcal{T}_{p}\boldsymbol{\phi}(x)] = 0$$
-
-    (any operator satisfying the above is Stein's operator, and $\phi$ is in the Stein class of $p$)
-
-    We end up with a closed form update for $\phi$:
-
-    $$\boldsymbol{\hat{\phi}}^*(x_i^{\ell})=\frac{1}{n}\sum_{i=1}^n (\underbrace{\textcolor{red}{k(x_j^\ell,x_i^\ell)\nabla_{x_j^\ell}\log p(x_j^\ell)}}_{\text{Towards target distribution}}+\underbrace{\textcolor{blue}{\nabla_{x_j^\ell}k(x_j^\ell,x_i^\ell)}}_{\text{Repulsive force keeping particles apart}})$$
-
-\end{frame}
-
-\begin{frame}{Toy Examples}
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=0.8\linewidth]{GaussianDensity.png}
-        \caption{Toy Problem 1- Gaussian Density}        
-    \end{figure}
-\end{frame}
-
-\begin{frame}{Toy Examples}
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=0.8\linewidth]{NealsFunnel.png}
-        \caption{Toy Problem 2 - Neals Funnel}        
-    \end{figure}
-\end{frame}
 
 
-\begin{frame}{No free lunch}
-    This works out great, but of course in practice there are scaling issues!
-
-    - All methods that use kernels (kernel-based hypothesis testing, vanilla SVGD) fail eventually as the curse of dimensionality hits! SVGD will end up collapsing to the modes of the target distribution
-
-    - So, most improvements center around - deriving projected transport maps based on active subspaces, message passing variants that solve several lower-dimensional problems and so on.
-
-    Missing pieces:
-
-    - \textcolor{orange}{Dealing with the cost of expensive likelihood updates}
-
-    - Dealing with a suitable choice of kernel, and reducing complexity of the particle-wise force updates.
-\end{frame}
-
-\begin{frame}{Approximate Control Variate-based formulation}
-Can we use ACVs to exploit correlations between simulators of different fidelities and converge to a target density? \textbf{Maybe}
 
 
-Current generous assumption:
 
-- Direct access to probability densities associated with each model $p_0(x), p_1(x), \cdots, p_m(x)$ ($p_0$ is our high-fidelity target)
-
-- All models are defined on the same set of parameters, alternately, we can project them to a shared parameter space.
-
-For every particle, the ACV-SVGD update takes the form:
-
-\begin{align}
-    \Tilde{\phi}(x_i, z,\alpha,\mathcal{A}) &= 
-    \hat{\phi}_{0}(x_i, z_{0})+\sum^{M}_{m=1}\alpha_{m}\left( \hat{\phi}_{m}(x_i, z^{\ast}_{m})-\hat{\mu}_{m}(x_i, z_{m}) \right) \nonumber\\ 
-\end{align}
-
-\end{frame}
+% \begin{frame}{Toy Examples}
+%     \begin{figure}[H]
+%         \centering
+%         \includegraphics[width=0.8\linewidth]{NealsFunnel.png}
+%         \caption{Toy Problem 2 - Neals Funnel}        
+%     \end{figure}
+% \end{frame}
 
 
-\begin{frame}{Loosely related works}
-    Things that might bear some resemblance to this, but will require more careful reading:
 
-    - Learning CDFs in an ACV framework -  \url{https://arxiv.org/abs/2303.06422}
 
-    - HMC swindles - ``chains targeting slightly different stationary distributions still couple approximately when driven by the same randomness'' - antithetic sampling and control variates - \url{https://proceedings.mlr.press/v108/piponi20a/piponi20a.pdf}
 
-    - Stein control variates - \url{https://arxiv.org/pdf/1710.11198}
+% \begin{frame}{Loosely related works}
+%     Things that might bear some resemblance to this, but will require more careful reading:
 
-    - Generalized Stein's identity for vector-valued control variates - \url{https://proceedings.mlr.press/v202/sun23a/sun23a.pdf}
+%     - Learning CDFs in an ACV framework -  \url{https://arxiv.org/abs/2303.06422}
+
+%     - HMC swindles - ``chains targeting slightly different stationary distributions still couple approximately when driven by the same randomness'' - antithetic sampling and control variates - \url{https://proceedings.mlr.press/v108/piponi20a/piponi20a.pdf}
+
+%     - Stein control variates - \url{https://arxiv.org/pdf/1710.11198}
+
+%     - Generalized Stein's identity for vector-valued control variates - \url{https://proceedings.mlr.press/v202/sun23a/sun23a.pdf}
 
     
-\end{frame}
+% \end{frame}
 
 
 
@@ -426,50 +608,123 @@ For every particle, the ACV-SVGD update takes the form:
 % \begin{frame}
     
 % \end{frame}
+\begin{frame}{Setting up goal-oriented design}
 
-
-\begin{frame}{Notes}
-
+    Assuming $z=H(\tilde{G}(w, d^{\ast}))$ i.e. evaluating a function of the NN predictions at a fixed $d$, the MC estimator for GO-OED is (similar to formulation of \textcolor{purple}{Zhong et al. 2024}):
+    \begin{align*}
+        U(d) &= \int_{\mathcal{G}} \int_{\mathcal{Z}} p(z | G, d) \ln \frac{p(z | G, d)}{p(z)}p(G | d) dz dG \\ \nonumber
+        &= \int_{\mathcal{G}} \int_{\mathcal{Z}} \ln \frac{p(z | G, \theta)}{p(z)}p(z, G | \theta) dz dG \nonumber\\
+        &= \int_{\mathcal{G}} \int_{\mathcal{Z}} \int_{\mathcal{W}} \ln \frac{p(z | G, \theta)}{p(z)} p(w, G, z | d) dw dz dG \nonumber\\
+        &=\int_{\mathcal{G}} \int_{\mathcal{Z}} \int_{\mathcal{W}} \ln \frac{p(z | G, d)}{p(z)} p(G | w) p(w | G, d)p(z | w) dw dz dG \nonumber \\
+        &\approx \frac{1}{N_{\textrm{out}}} \sum_{i=1}^{N_{\textrm{out}}} \left[\frac{1}{N_{\textrm{in}}}\sum_{i=1}^{N_{\textrm{in}}} \ln \left[p(z^{(i, j)} | G^{(i)}, d)\right] - \ln\left[p(z^{(i)})\right]\right] \label{eq: estimator_eig_pred} \nonumber
+    \end{align*}
 \end{frame}
 
-
-
-
-    
-
-
-\begin{frame}{Fun facts}
-    (from `A Conversation with Charles Stein' by Morris H. DeGroot)
-    \emph{``There are grave difficulties in trying to apply the Bayesian notions to interesting problems because of the difficulty of choosing a prior distribution.''}
-    
-    % \emph{``Not publishing a lot of interesting results: That results from a certain laziness and perfectionism in the bad sense.''}
-      
-    Full interview: \url{https://www.jstor.org/stable/2245793?seq=6}
-    
-    Stein lent his name to a lot of things: Stein's paradox, the James-Stein estimator, Stein's identity, Stein operator, etc.
-    
-    \url{https://sites.google.com/site/steinsmethod/articles}
-    
-    % We will talk a bit more about Stein's identity and choice of Stein operator.
-\end{frame}
-
-
-\begin{frame}[allowframebreaks]
-    \frametitle{References}
-    \bibliographystyle{chicago}
-
-    %\bibliographystyle{IEEEtran}
-    \bibliography{references}
-\end{frame}
-
-% \section{Backup}
-% \begin{frame}{}
-% \begin{center}
-%     \Large{Thank you!}
-% \end{center}
+\begin{frame}{SVGD-based GO-OED}
+    \begin{enumerate}
+        \item Prior samples $w^{(i)}$ can be perturbed to generate initial state of particles for inner loop rather than reusing samples from outer loop; to speed up generation of posterior samples.
         
+        \item PDFs of prior predictive $p(z^{(i)})$ and posterior predictive $p(z^{(i, j)})$ are estimated via KDE.
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Summary of Prior and Posterior Predictive}
+$$z = \tilde{G}(w, d=-0.5)$$
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{go_oed_prior_post_predictive_samples.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Results of batch design from $U_{\text{param}}$ and $U_{\text{pred}}$}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.87\textwidth]{go_vs_nongo.png}
+    \end{figure}
+\end{frame}
+
+
+\section{Conclusions and Future Work}
+\begin{frame}{Conclusions}
+
+\begin{enumerate}
+    \item We looked at strategies to adaptively train neural network surrogates.
+    
+    \item For a small example, we perform OED targetting uncertainty reduction in NN parameters as well as show a limited setup to target downstream QoIs.
+    
+    \textcolor{purple}{Scaling up the latter will require more efficient EIG estimation in the goal-oriented setting as well as inference methods for BNNs.}
+    
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Next Steps}
+\begin{enumerate}
+    \item Adapting trained NNs for goal-oriented designs with prediction model $H(\theta, d)$ \emph{different from but correlated to} the high-fidelity model $G$.
+
+    \item Tailoring kernel functions for common higher-dimensional inputs to NNs like image data, for instance, convolutional GP kernels \textcolor{purple}{[van der Wilk et al. 2017]}
+    
+    \item Determining resource allocations as a trade-off between surrogate building and subsequent outer-loop tasks.\footnotemark
+    
+    \footnotetext{For a sneak peek at balancing pilot sampling and estimation for stochastic optimization in multifidelity frameworks, go to \textcolor{red}{Thomas Coons' talk - MS114, Room 106, 4:40 pm}}
+\end{enumerate}
+\end{frame}
+
+% \begin{frame}[allowframebreaks]
+%     \frametitle{References}
+%     \bibliographystyle{chicago}
+
+%     %\bibliographystyle{IEEEtran}
+%     \bibliography{references}
 % \end{frame}
 
+% \section{Backup}
+
+\begin{frame}{}
+
+    \normalsize \textbf{Acknowledgement:}
+
+    This work relates to Department of Navy award 
+    N00014-23-1-2735 issued by the Office of Naval Research.
+
+
+    \normalsize This material is based upon work supported in part by Sandia National Laboratories Advanced Science and Technology Laboratory Directed Research and Development program. Sandia National Laboratories is a multimission laboratory managed and operated by National Technology and Engineering Solutions of Sandia, LLC., a wholly owned subsidiary of Honeywell International, Inc., for the U.S. Department of Energy's National Nuclear Security Administration under contract DE-NA0003525. 
+
+    SIAM Travel Award for CSE25.
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.6\textwidth]{onr_sandia_log.png}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}{}
+\begin{center}
+    \Large{Thank you!}
+
+    Contact: \textcolor{blue}{\url{ajivani@umich.edu}}
+    % {mailto:ajivani@umich.edu}{ajivani@umich.edu}}
+
+    % \footnotetext{\large \textbf{Acknowledgement:}
+    % SIAM Travel Award for CSE25. Funding for these awards is provided by SIAM operating funds, donations to the SIAM Travel Student Fund, royalties generously donated by SIAM book authors, and a grant from the U.S. National Science Foundation (NSF). 
+    % }
+\end{center}
+\end{frame}
+
+
+\begin{frame}{Initializing with a Different Pilot Set}
+\begin{figure}[H]
+    \includegraphics[width=1.1\textwidth]{post_predictive_center_point.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{OED Classification}
+
+    \begin{figure}[H]
+        \includegraphics[width=0.6\textwidth]{classification_oed.png}
+    \end{figure}
+
+\end{frame}
 % Nice 15 minute read on the subject and the philosophy: \url{https://www.stochasticlifestyle.com/how-to-train-interpretable-neural-networks-that-accurately-extrapolate-from-small-data/}
 
 % \end{frame}
